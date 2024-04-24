@@ -1,4 +1,4 @@
-package xyz.needpankiller.timbe.gateway;
+package xyz.needpankiller.timber.gateway;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

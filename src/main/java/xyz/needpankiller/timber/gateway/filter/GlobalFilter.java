@@ -1,4 +1,4 @@
-package xyz.needpankiller.timbe.gateway.filter;
+package xyz.needpankiller.timber.gateway.filter;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
