@@ -1,0 +1,27 @@
+spring:
+  kafka:
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+#      client-id: kafka-test-producer
+      properties:
+        delivery.timeout.ms: 120000
+        linger.ms: 0
+    consumer:
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+#      value-deserializer: org.springframework.kafka.support.serializer.StringDeserializer
+#      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        max.partition.fetch.bytes: 1048576
+        receive.buffer.bytes: 65536
+        spring:
+          deserializer:
+            value:
+              delegate:
+                class: org.springframework.kafka.support.serializer.JsonDeserializer
+          json:
+            trusted:
+              packages: '*'
+    listener:
+      concurrency: 2
+      ack-mode: record
