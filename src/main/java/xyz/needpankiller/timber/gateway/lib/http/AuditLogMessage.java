@@ -1,4 +1,4 @@
- package xyz.needpankiller.timber.gateway.lib.http;
+package xyz.needpankiller.timber.gateway.lib.http;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -20,6 +20,7 @@ public class AuditLogMessage implements Serializable {
 
     private Long id;
     private Long tenantPk;
+    private boolean visibleYn;
     private Integer httpStatus;
     private HttpMethod httpMethod;
     private String agentOs;
@@ -34,18 +35,9 @@ public class AuditLogMessage implements Serializable {
     private String responseContentType;
     private String responsePayLoad;
     private Timestamp createdDate;
-    private Long userPk;
-    private String userId;
-    private String userEmail;
-    private String userName;
-    private Long teamPk;
-    private String teamName;
-    private Long menuUid;
-    private String menuName;
-    private Long apiUid;
-    private String apiName;
     private Map<String, Serializable> errorData;
-    private boolean visibleYn;
+
+    private String token;
 
     public Long getId() {
         return id;
@@ -53,6 +45,14 @@ public class AuditLogMessage implements Serializable {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public boolean isVisibleYn() {
+        return visibleYn;
+    }
+
+    public void setVisibleYn(boolean visibleYn) {
+        this.visibleYn = visibleYn;
     }
 
     public Long getTenantPk() {
@@ -175,86 +175,6 @@ public class AuditLogMessage implements Serializable {
         this.createdDate = createdDate;
     }
 
-    public Long getUserPk() {
-        return userPk;
-    }
-
-    public void setUserPk(Long userPk) {
-        this.userPk = userPk;
-    }
-
-    public String getUserId() {
-        return userId;
-    }
-
-    public void setUserId(String userId) {
-        this.userId = userId;
-    }
-
-    public String getUserEmail() {
-        return userEmail;
-    }
-
-    public void setUserEmail(String userEmail) {
-        this.userEmail = userEmail;
-    }
-
-    public String getUserName() {
-        return userName;
-    }
-
-    public void setUserName(String userName) {
-        this.userName = userName;
-    }
-
-    public Long getTeamPk() {
-        return teamPk;
-    }
-
-    public void setTeamPk(Long teamPk) {
-        this.teamPk = teamPk;
-    }
-
-    public String getTeamName() {
-        return teamName;
-    }
-
-    public void setTeamName(String teamName) {
-        this.teamName = teamName;
-    }
-
-    public Long getMenuUid() {
-        return menuUid;
-    }
-
-    public void setMenuUid(Long menuUid) {
-        this.menuUid = menuUid;
-    }
-
-    public String getMenuName() {
-        return menuName;
-    }
-
-    public void setMenuName(String menuName) {
-        this.menuName = menuName;
-    }
-
-    public Long getApiUid() {
-        return apiUid;
-    }
-
-    public void setApiUid(Long apiUid) {
-        this.apiUid = apiUid;
-    }
-
-    public String getApiName() {
-        return apiName;
-    }
-
-    public void setApiName(String apiName) {
-        this.apiName = apiName;
-    }
-
     public Map<String, Serializable> getErrorData() {
         return errorData;
     }
@@ -263,11 +183,11 @@ public class AuditLogMessage implements Serializable {
         this.errorData = errorData;
     }
 
-    public boolean isVisibleYn() {
-        return visibleYn;
+    public String getToken() {
+        return token;
     }
 
-    public void setVisibleYn(boolean visibleYn) {
-        this.visibleYn = visibleYn;
+    public void setToken(String token) {
+        this.token = token;
     }
 }
