@@ -23,6 +23,7 @@ import reactor.core.publisher.Mono;
 @Slf4j
 public class ResponseBodyDecorator extends ServerHttpResponseDecorator {
 
+    private static final String RESPONSE = "response";
     private final ServerWebExchange exchange;
 
 
@@ -34,8 +35,7 @@ public class ResponseBodyDecorator extends ServerHttpResponseDecorator {
 
     @Override
     public Mono<Void> writeWith(Publisher<? extends DataBuffer> body) {
-        if (body instanceof Flux) {
-            Flux<? extends DataBuffer> fluxBody = (Flux<? extends DataBuffer>) body;
+        if (body instanceof Flux<? extends DataBuffer> fluxBody) {
             return super.writeWith(fluxBody.buffer().map(dataBuffers -> {
                         // 응답 버퍼 팩토리에서 데이터 버퍼를 가져와 조인
                         DataBufferFactory dataBufferFactory = exchange.getResponse().bufferFactory();
@@ -43,16 +43,17 @@ public class ResponseBodyDecorator extends ServerHttpResponseDecorator {
                         // 조인된 새 데이터 버퍼를 읽어서 바이트 배열로 변환
                         byte[] content = new byte[join.readableByteCount()];
                         DataBufferUtils.release(join.read(content));
+                        exchange.getAttributes().put(RESPONSE, content);
                         return dataBufferFactory.wrap(content);
                     }))
                     // 에러 발생시 에러가 발생한 Flux 데이터만 로깅
                     .onErrorContinue(throwable -> !throwable.getLocalizedMessage().isBlank(), (e, o) -> log.error("Error: {} with {}", e.getMessage(), o));
-        } else if (body instanceof Mono) {
-            Mono<? extends DataBuffer> monoBody = (Mono<? extends DataBuffer>) body;
+        } else if (body instanceof Mono<? extends DataBuffer> monoBody) {
             return super.writeWith(monoBody.map(dataBuffer -> {
                         // 응답 바이트 추출 후 Attribute에 저장
                         byte[] content = new byte[dataBuffer.readableByteCount()];
                         DataBufferUtils.release(dataBuffer.read(content));
+                        exchange.getAttributes().put(RESPONSE, content);
                         // Caching 후 응답 데이터 반환
                         return exchange.getResponse().bufferFactory().wrap(content);
                     }))
