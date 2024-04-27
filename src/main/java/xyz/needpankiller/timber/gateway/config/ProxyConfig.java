@@ -44,7 +44,7 @@ public class ProxyConfig {
     public RouteLocator devRouteLocator(RouteLocatorBuilder builder) {
         log.info("devRouteLocator");
         return builder.routes()
-                .route("timber", r -> r.path("api/**")
+                .route("timber", r -> r.path("/api/**")
 //                        .filters(f -> f.filter(jwtFilter.apply(new JwtFilter.Confiig())))
                         .uri("http://localhost:8080"))
                 .route("timber", r -> r.path(STATIC_RESOURCE_PATHS())
