@@ -1,29 +1,18 @@
 package xyz.needpankiller.timber.gateway.filter;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.annotation.Nullable;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.Ordered;
 import org.springframework.core.io.buffer.DataBufferUtils;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
-import ua_parser.Client;
+import reactor.core.scheduler.Schedulers;
 import ua_parser.Parser;
-import xyz.needpankiller.timber.gateway.helper.TimeHelper;
 import xyz.needpankiller.timber.gateway.lib.RequestBodyDecorator;
-import xyz.needpankiller.timber.gateway.lib.http.AuditLogMessage;
-
-import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * @author needpainkiller
@@ -55,61 +44,69 @@ public class GlobalWebFilter implements GlobalFilter, Ordered {
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         log.info("Global Pre Filter executed");
-        return DataBufferUtils.join(exchange.getRequest().getBody()).map(dataBuffer -> {
+        return DataBufferUtils.join(exchange.getRequest().getBody())
+                .map(dataBuffer -> {
                     final byte[] bytes = new byte[dataBuffer.readableByteCount()];
                     DataBufferUtils.release(dataBuffer.read(bytes));
                     return bytes;  // 일회성 읽기 만 가능한 리퀘스트 바디 데이터를 미리 읽어서 바이트 배열로 변환
                 })
-                .defaultIfEmpty(EMPTY_BYTES)
+                .defaultIfEmpty(EMPTY_REQUEST_BYTES)
+                // 요청이 완료되면 바디를 출력, elastic 스케줄러를 사용하여 블로킹 작업을 넌 블로킹 작업으로 변경
                 .doOnNext(bytes -> Mono.fromRunnable(() -> {
 
-                }))
+                            // 요청 바디 활용
+                            log.info("Request Body: {}", new String(bytes));
+                            log.info("Request Body Length: {}", bytes.length);
+                            log.info("Request Headers: {}", exchange.getRequest().getHeaders());
 
+                        })
+                        //수행시간이 긴 블로킹 작업을 넌 블로킹 작업으로 변경
+                        .subscribeOn(Schedulers.boundedElastic()).subscribe())
                 .flatMap(bytes -> {
                     // RequestBodyDecorator를 사용하여 요청 바디를 캐싱
                     final RequestBodyDecorator decorator = new RequestBodyDecorator(exchange, bytes);
                     // 요청 바디를 캐싱한 RequestBodyDecorator를 사용하여 요청을 변경
+                    log.info("Global Post Filter executed");
                     return chain.filter(exchange.mutate().request(decorator).build());
                 });
+//        return chain.filter(exchange).then(Mono.fromRunnable(() -> {
+//            log.info("Global Post Filter executed");
+//            ServerHttpRequest request = exchange.getRequest();
+//            ServerHttpResponse response = exchange.getResponse();
+//
+//
+//            HttpStatusCode statusCode = response.getStatusCode();
+//
+//            HttpMethod httpMethod = request.getMethod();
+//
+//            String requestURI = request.getURI().toString();
+//            String userAgent = request.getHeaders().getFirst("user-agent");
+//            String requestIp = Objects.requireNonNull(request.getRemoteAddress()).getHostString();
+//
+//            String requestContentType = request.getHeaders().getFirst("Content-Type");
+//            AtomicReference<String> requestPayload = null;
+//            if (!Strings.isBlank(requestContentType) && requestContentType.startsWith(CONTENT_TYPE_JSON)) {
+//
+//                request.getBody().map(dataBuffer -> {
+//                    byte[] bytes = new byte[dataBuffer.readableByteCount()];
+//                    dataBuffer.read(bytes);
+//                    DataBufferUtils.release(dataBuffer);
+//                    return new String(bytes, StandardCharsets.UTF_8);
+//                }).subscribe(body -> requestPayload.set(body));
+//
+//            }
+//            String responseContentType = response.getHeaders().getFirst("Content-Type");
+//            String responsePayload;
+//            if (!Strings.isBlank(responseContentType) && responseContentType.startsWith(CONTENT_TYPE_JSON)) {
+//
+//
+////                responsePayload = HttpHelper.getResponsePayload(response);
+//            } else {
+//                responsePayload = null;
+//            }
+//            String token = request.getHeader(JsonWebTokenProvider.BEARER_TOKEN_HEADER);
 
-      /*  return chain.filter(exchange).then(Mono.fromRunnable(() -> {
-            log.info("Global Post Filter executed");
-            ServerHttpRequest request = exchange.getRequest();
-            ServerHttpResponse response = exchange.getResponse();
-
-
-            HttpStatusCode statusCode = response.getStatusCode();
-
-            HttpMethod httpMethod = request.getMethod();
-
-            String requestURI = request.getURI().toString();
-            String userAgent = request.getHeaders().getFirst("user-agent");
-            String requestIp = Objects.requireNonNull(request.getRemoteAddress()).getHostString();
-
-            String requestContentType = request.getHeaders().getFirst("Content-Type");
-            AtomicReference<String> requestPayload = null;
-            if (!Strings.isBlank(requestContentType) && requestContentType.startsWith(CONTENT_TYPE_JSON)) {
-
-                request.getBody().map(dataBuffer -> {
-                    byte[] bytes = new byte[dataBuffer.readableByteCount()];
-                    dataBuffer.read(bytes);
-                    DataBufferUtils.release(dataBuffer);
-                    return new String(bytes, StandardCharsets.UTF_8);
-                }).subscribe(body -> requestPayload.set(body));
-
-            }
-            String responseContentType = response.getHeaders().getFirst("Content-Type");
-            String responsePayload;
-            if (!Strings.isBlank(responseContentType) && responseContentType.startsWith(CONTENT_TYPE_JSON)) {
-
-
-//                responsePayload = HttpHelper.getResponsePayload(response);
-            } else {
-                responsePayload = null;
-            }
-            String token = request.getHeader(JsonWebTokenProvider.BEARER_TOKEN_HEADER);
-
-        }));*/
+//        }));
     }
 
     @Override
@@ -120,7 +117,7 @@ public class GlobalWebFilter implements GlobalFilter, Ordered {
     String CONTENT_TYPE_JSON = "application/json";
     Parser uaParser = new Parser();
 
-    private void log(HttpMethod httpMethod, int statusCode,
+ /*   private void log(HttpMethod httpMethod, int statusCode,
                      String requestURI, String requestIp, String userAgent,
                      String requestContentType, String requestPayload,
                      String responseContentType, String responsePayload,
@@ -170,6 +167,6 @@ public class GlobalWebFilter implements GlobalFilter, Ordered {
 
         log.info("auditLogMessage : {}", auditLogMessage);
 //        template.send("timber__topic-audit-api", auditLogMessage);
-    }
+    }*/
 
 }
