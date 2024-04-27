@@ -3,7 +3,7 @@
     <option name="FRAME_DEACTIVATION_UPDATE_POLICY" value="UpdateClassesAndResources" />
     <module name="Timber-Cloud-Gateway.main" />
     <option name="SPRING_BOOT_MAIN_CLASS" value="xyz.needpankiller.timber.gateway.TimberCloudGatewayApplication" />
-    <option name="VM_PARAMETERS" value="-server -Djava.net.preferIPv4Stack=true -Dlog4j2.formatMsgNoLookups=true" />
+    <option name="VM_PARAMETERS" value="-server -Dspring.profiles.active=local -Djava.net.preferIPv4Stack=true -Dlog4j2.formatMsgNoLookups=true" />
     <method v="2">
       <option name="Make" enabled="true" />
     </method>
