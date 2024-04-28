@@ -1,4 +1,11 @@
-server.port: 8082
+server:
+  port: 8082
+  compression:
+    enabled: true
+    mime-types: text/html,text/xml,text/plain,text/css,text/javascript,application/javascript,application/json
+    min-response-size: 5KB
+
+
 spring:
   profiles:
     active:
