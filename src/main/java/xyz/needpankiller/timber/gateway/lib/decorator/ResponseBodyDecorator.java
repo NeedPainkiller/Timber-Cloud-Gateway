@@ -1,10 +1,12 @@
-package xyz.needpankiller.timber.gateway.lib;
+package xyz.needpankiller.timber.gateway.lib.decorator;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.logging.log4j.util.Strings;
 import org.reactivestreams.Publisher;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferFactory;
 import org.springframework.core.io.buffer.DataBufferUtils;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.server.reactive.ServerHttpResponseDecorator;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Flux;
@@ -22,6 +24,7 @@ import reactor.core.publisher.Mono;
  */
 @Slf4j
 public class ResponseBodyDecorator extends ServerHttpResponseDecorator {
+    private static final String CONTENT_TYPE_JSON = "application/json";
 
     private static final String RESPONSE = "response";
     private final ServerWebExchange exchange;
@@ -32,9 +35,24 @@ public class ResponseBodyDecorator extends ServerHttpResponseDecorator {
         this.exchange = exchange;
     }
 
+    /*
+     * 응답 전 데이터를 가져오는 writeWith 메소드 오버라이딩
+     * exchange 로 부터 응답 헤더를 가져와 Content-Type을 확인하여 응답 바디 캐싱 여부를 결정
+     * 응답 바디 캐싱 여부에 따라 응답 바디를 Publisher<? extends DataBuffer> 퍼블리셔로 반환
+     * @param body
+     * @return Mono<Void>
+     * */
 
     @Override
     public Mono<Void> writeWith(Publisher<? extends DataBuffer> body) {
+        HttpHeaders responseHeaders = exchange.getResponse().getHeaders();
+        String responseContentType = responseHeaders.getFirst("Content-Type");
+        boolean responseBodyCaching = !Strings.isBlank(responseContentType) && responseContentType.startsWith(CONTENT_TYPE_JSON);
+
+        if (!responseBodyCaching) {
+            return super.writeWith(body);
+        }
+
         if (body instanceof Flux<? extends DataBuffer> fluxBody) {
             return super.writeWith(fluxBody.buffer().map(dataBuffers -> {
                         // 응답 버퍼 팩토리에서 데이터 버퍼를 가져와 조인
