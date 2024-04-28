@@ -1,8 +1,10 @@
-package xyz.needpankiller.timber.gateway.lib.http;
+package xyz.needpankiller.timber.gateway.service;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -31,8 +33,11 @@ public class AuditLogMessage implements Serializable {
     private String requestIp;
     private String requestUri;
     private String requestContentType;
+    private HttpHeaders requestHeaders;
     private String requestPayLoad;
     private String responseContentType;
+
+    private HttpHeaders responseHeaders;
     private String responsePayLoad;
     private Timestamp createdDate;
     private Map<String, Serializable> errorData;
@@ -143,6 +148,14 @@ public class AuditLogMessage implements Serializable {
         this.requestContentType = requestContentType;
     }
 
+    public HttpHeaders getRequestHeaders() {
+        return requestHeaders;
+    }
+
+    public void setRequestHeaders(HttpHeaders requestHeaders) {
+        this.requestHeaders = requestHeaders;
+    }
+
     public String getRequestPayLoad() {
         return requestPayLoad;
     }
@@ -157,6 +170,14 @@ public class AuditLogMessage implements Serializable {
 
     public void setResponseContentType(String responseContentType) {
         this.responseContentType = responseContentType;
+    }
+
+    public HttpHeaders getResponseHeaders() {
+        return responseHeaders;
+    }
+
+    public void setResponseHeaders(HttpHeaders responseHeaders) {
+        this.responseHeaders = responseHeaders;
     }
 
     public String getResponsePayLoad() {
@@ -189,5 +210,33 @@ public class AuditLogMessage implements Serializable {
 
     public void setToken(String token) {
         this.token = token;
+    }
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("AuditLogMessage{");
+        sb.append("id=").append(id);
+        sb.append(", tenantPk=").append(tenantPk);
+        sb.append(", visibleYn=").append(visibleYn);
+        sb.append(", httpStatus=").append(httpStatus);
+        sb.append(", httpMethod=").append(httpMethod);
+        sb.append(", agentOs='").append(agentOs).append('\'');
+        sb.append(", agentOsVersion='").append(agentOsVersion).append('\'');
+        sb.append(", agentBrowser='").append(agentBrowser).append('\'');
+        sb.append(", agentBrowserVersion='").append(agentBrowserVersion).append('\'');
+        sb.append(", agentDevice='").append(agentDevice).append('\'');
+        sb.append(", requestIp='").append(requestIp).append('\'');
+        sb.append(", requestUri='").append(requestUri).append('\'');
+        sb.append(", requestContentType='").append(requestContentType).append('\'');
+        sb.append(", requestHeaders=").append(requestHeaders);
+        sb.append(", requestPayLoad='").append(requestPayLoad).append('\'');
+        sb.append(", responseContentType='").append(responseContentType).append('\'');
+        sb.append(", responseHeaders=").append(responseHeaders);
+        sb.append(", responsePayLoad='").append(responsePayLoad).append('\'');
+        sb.append(", createdDate=").append(createdDate);
+        sb.append(", errorData=").append(errorData);
+        sb.append(", token='").append(token).append('\'');
+        sb.append('}');
+        return sb.toString();
     }
 }
