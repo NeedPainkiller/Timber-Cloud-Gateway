@@ -4,7 +4,7 @@ package xyz.needpankiller.timber.gateway.service;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
+import xyz.needpankiller.timber.gateway.lib.HttpMethod;
 
 import java.io.Serial;
 import java.io.Serializable;
