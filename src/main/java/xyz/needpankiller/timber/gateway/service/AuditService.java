@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.server.reactive.ServerHttpResponse;
+ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 import ua_parser.Client;
@@ -27,11 +28,16 @@ import java.util.Objects;
 @Slf4j
 @Component
 public class AuditService {
-    @Autowired
-    private ObjectMapper objectMapper;
+
     private static final String CONTENT_TYPE_JSON = "application/json";
     private static final String BEARER_TOKEN_HEADER = "X-Authorization";
     private static Parser uaParser = new Parser();
+
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    @Autowired
+    private KafkaTemplate<Object, Object> template;
 
 
     public Mono<Void> audit(ServerHttpRequest request, byte[] requestBody, ServerHttpResponse response, byte[] responseBody) {
@@ -92,7 +98,7 @@ public class AuditService {
 
         HttpStatus.Series series = HttpStatus.Series.resolve(statusCode);
         auditLogMessage.setHttpStatus(statusCode);
-        auditLogMessage.setHttpMethod(httpMethod);
+        auditLogMessage.setHttpMethod(xyz.needpankiller.timber.gateway.lib.HttpMethod.nameOf(httpMethod.name()));
 
         try {
             auditLogMessage.setRequestIp(requestIp);
@@ -121,6 +127,6 @@ public class AuditService {
         auditLogMessage.setToken(token);
 
         log.info("auditLogMessage: {}", auditLogMessage);
-//        template.send("timber__topic-audit-api", auditLogMessage);
+        template.send("timber__topic-audit-api", auditLogMessage);
     }
 }
