@@ -27,7 +27,7 @@ import java.util.Objects;
 
 @Slf4j
 @Component
-public class AuditService {
+public class AuditProducer {
 
     private static final String CONTENT_TYPE_JSON = "application/json";
     private static final String BEARER_TOKEN_HEADER = "X-Authorization";
@@ -40,7 +40,7 @@ public class AuditService {
     private KafkaTemplate<Object, Object> template;
 
 
-    public Mono<Void> audit(ServerHttpRequest request, byte[] requestBody, ServerHttpResponse response, byte[] responseBody) {
+    public Mono<Void> produce(ServerHttpRequest request, byte[] requestBody, ServerHttpResponse response, byte[] responseBody) {
         return Mono.fromRunnable(() -> {
             HttpMethod httpMethod = request.getMethod();
             HttpStatusCode statusCode = response.getStatusCode();

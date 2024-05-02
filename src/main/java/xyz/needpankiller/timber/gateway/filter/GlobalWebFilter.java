@@ -14,7 +14,7 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 import xyz.needpankiller.timber.gateway.lib.decorator.RequestBodyDecorator;
 import xyz.needpankiller.timber.gateway.lib.decorator.ResponseBodyDecorator;
-import xyz.needpankiller.timber.gateway.service.AuditService;
+import xyz.needpankiller.timber.gateway.service.AuditProducer;
 
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -31,7 +31,7 @@ public class GlobalWebFilter implements GlobalFilter, Ordered {
     private static final String RESPONSE = "response";
 
     @Autowired
-    private AuditService auditService;
+    private AuditProducer auditProducer;
 
     /**
      * 글로벌 필터 구현
@@ -73,7 +73,7 @@ public class GlobalWebFilter implements GlobalFilter, Ordered {
                                     .build())
                             .doFinally($ -> Mono.fromRunnable(() -> {
                                 final byte[] responseBytes = (byte[]) exchange.getAttributes().remove(RESPONSE);
-                                auditService.audit(exchange.getRequest(), requestPayload.get(), exchange.getResponse(), responseBytes).subscribe();
+                                auditProducer.produce(exchange.getRequest(), requestPayload.get(), exchange.getResponse(), responseBytes).subscribe();
 
                             }).subscribeOn(Schedulers.boundedElastic()).subscribe());
                 });
