@@ -71,20 +71,6 @@ public class AuditProducer {
                       String requestContentType, HttpHeaders requestHeaders, String requestPayload,
                       String responseContentType, HttpHeaders responseHeaders, String responsePayload,
                       @Nullable String token) {
-        log.info("httpMethod: {}", httpMethod);
-        log.info("statusCode: {}", statusCode);
-        log.info("requestURI: {}", requestURI);
-        log.info("userAgent: {}", userAgent);
-        log.info("requestIp: {}", requestIp);
-        log.info("Request ContentType: {}", requestContentType);
-        log.info("Request Headers: {}", requestHeaders);
-        log.info("Request Body: {}", requestPayload);
-        log.info("Response ContentType: {}", responseContentType);
-        log.info("Response Headers: {}", responseHeaders);
-        log.info("Response Body: {}", responsePayload);
-        log.info("token: {}", token);
-
-
         Map<String, Serializable> errorData = new HashMap<>();
         AuditLogMessage auditLogMessage = new AuditLogMessage();
         auditLogMessage.setVisibleYn(true);
@@ -105,14 +91,14 @@ public class AuditProducer {
             auditLogMessage.setRequestIp(requestIp);
             auditLogMessage.setRequestUri(requestURI);
             auditLogMessage.setRequestContentType(requestContentType);
+            auditLogMessage.setRequestHeaders(requestHeaders);
             if (!Strings.isBlank(requestPayload)) {
                 auditLogMessage.setRequestPayLoad(requestPayload);
-//                auditLog.setRequestPayLoad(CompressHelper.compressString(requestPayload));
             }
             auditLogMessage.setResponseContentType(responseContentType);
+            auditLogMessage.setResponseHeaders(responseHeaders);
             if (!Strings.isBlank(responsePayload)) {
                 auditLogMessage.setResponsePayLoad(responsePayload);
-//                auditLog.setResponsePayLoad(CompressHelper.compressString(responsePayload));
             }
             auditLogMessage.setCreatedDate(TimeHelper.now());
 
