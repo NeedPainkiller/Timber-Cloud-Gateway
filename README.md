@@ -1,6 +1,6 @@
 # TIMBER
 
-<img src="https://capsule-render.vercel.app/api?type=waving&color=auto&height=300&section=header&text=TIMBER%20CLOUD%20GATEWAY&fontSize=60&animation=fadeIn&fontAlignY=38&desc=Globla%20Gateway%20Service&descAlignY=51&descAlign=62"/>
+<img src="https://capsule-render.vercel.app/api?type=waving&color=auto&height=300&section=header&text=TIMBER%20CLOUD%20GATEWAY&fontSize=60&animation=fadeIn&fontAlignY=38&desc=Global%20Gateway%20Service&descAlignY=51&descAlign=62"/>
 
 
 <p align="center">

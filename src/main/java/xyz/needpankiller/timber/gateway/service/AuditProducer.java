@@ -12,7 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.server.reactive.ServerHttpResponse;
- import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 import ua_parser.Client;
@@ -29,6 +29,7 @@ import java.util.Objects;
 @Component
 public class AuditProducer {
 
+    private static final String TOPIC_AUDIT_API = "timber__topic-audit-api";
     private static final String CONTENT_TYPE_JSON = "application/json";
     private static final String BEARER_TOKEN_HEADER = "X-Authorization";
     private static Parser uaParser = new Parser();
@@ -127,6 +128,6 @@ public class AuditProducer {
         auditLogMessage.setToken(token);
 
         log.info("auditLogMessage: {}", auditLogMessage);
-        template.send("timber__topic-audit-api", auditLogMessage);
+        template.send(TOPIC_AUDIT_API, auditLogMessage);
     }
 }
