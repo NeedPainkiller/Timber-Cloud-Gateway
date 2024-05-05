@@ -44,6 +44,8 @@ public class AuditLogMessage implements Serializable {
 
     private String token;
 
+     private Long elapsedTime;
+
     public Long getId() {
         return id;
     }
@@ -212,6 +214,14 @@ public class AuditLogMessage implements Serializable {
         this.token = token;
     }
 
+    public Long getElapsedTime() {
+        return elapsedTime;
+    }
+
+    public void setElapsedTime(Long elapsedTime) {
+        this.elapsedTime = elapsedTime;
+    }
+
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("AuditLogMessage{");
@@ -235,7 +245,8 @@ public class AuditLogMessage implements Serializable {
         sb.append(", responsePayLoad='").append(responsePayLoad).append('\'');
         sb.append(", createdDate=").append(createdDate);
         sb.append(", errorData=").append(errorData);
-        sb.append(", token='").append(token).append('\'');
+        sb.append(", token='").append(token);
+        sb.append(", elapsedTime='").append(elapsedTime).append('\'');
         sb.append('}');
         return sb.toString();
     }
