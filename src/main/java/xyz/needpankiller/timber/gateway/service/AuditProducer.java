@@ -2,7 +2,6 @@ package xyz.needpankiller.timber.gateway.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.annotation.Nullable;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,7 +40,7 @@ public class AuditProducer {
     private KafkaTemplate<Object, Object> template;
 
 
-    public Mono<Void> produce(ServerHttpRequest request, byte[] requestBody, ServerHttpResponse response, byte[] responseBody) {
+    public Mono<Void> produce(ServerHttpRequest request, byte[] requestBody, ServerHttpResponse response, byte[] responseBody, long elapsedTime) {
         return Mono.fromRunnable(() -> {
             HttpMethod httpMethod = request.getMethod();
             HttpStatusCode statusCode = response.getStatusCode();
@@ -62,7 +61,7 @@ public class AuditProducer {
 
             String token = requestHeaders.getFirst(BEARER_TOKEN_HEADER);
 
-            send(httpMethod, Objects.requireNonNull(statusCode).value(), requestURI, requestIp, userAgent, requestContentType, requestHeaders, requestBodyStr, responseContentType, responseHeaders, responseBodyStr, token);
+            send(httpMethod, Objects.requireNonNull(statusCode).value(), requestURI, requestIp, userAgent, requestContentType, requestHeaders, requestBodyStr, responseContentType, responseHeaders, responseBodyStr, token, elapsedTime);
         });
     }
 
@@ -70,7 +69,7 @@ public class AuditProducer {
                       String requestURI, String requestIp, String userAgent,
                       String requestContentType, HttpHeaders requestHeaders, String requestPayload,
                       String responseContentType, HttpHeaders responseHeaders, String responsePayload,
-                      @Nullable String token) {
+                      String token, long elapsedTime) {
         Map<String, Serializable> errorData = new HashMap<>();
         AuditLogMessage auditLogMessage = new AuditLogMessage();
         auditLogMessage.setVisibleYn(true);
@@ -112,6 +111,7 @@ public class AuditProducer {
         }
         auditLogMessage.setErrorData(errorData);
         auditLogMessage.setToken(token);
+        auditLogMessage.setElapsedTime(elapsedTime);
 
         log.info("auditLogMessage: {}", auditLogMessage);
         template.send(TOPIC_AUDIT_API, auditLogMessage);

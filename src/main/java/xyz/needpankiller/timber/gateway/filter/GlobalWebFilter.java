@@ -48,6 +48,8 @@ public class GlobalWebFilter implements GlobalFilter, Ordered {
 
         AtomicReference<byte[]> requestPayload = new AtomicReference<>();
 
+        long startTime = System.currentTimeMillis();
+
         Flux<DataBuffer> body = exchange.getRequest().getBody();
         return DataBufferUtils.join(body)
                 .map(dataBuffer -> {
@@ -73,7 +75,8 @@ public class GlobalWebFilter implements GlobalFilter, Ordered {
                                     .build())
                             .doFinally($ -> Mono.fromRunnable(() -> {
                                 final byte[] responseBytes = (byte[]) exchange.getAttributes().remove(RESPONSE);
-                                auditProducer.produce(exchange.getRequest(), requestPayload.get(), exchange.getResponse(), responseBytes).subscribe();
+                                long elapsedTime = System.currentTimeMillis() - startTime;
+                                auditProducer.produce(exchange.getRequest(), requestPayload.get(), exchange.getResponse(), responseBytes, elapsedTime).subscribe();
 
                             }).subscribeOn(Schedulers.boundedElastic()).subscribe());
                 });
